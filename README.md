@@ -1,15 +1,15 @@
 # NewsCatcher News API V2 SDK for Python
 
-The official Python client library to manipulate NewsCatcher News API V2 from your Python application.
+The official Python client library to manipulate [NewsCatcher News API V2](https://newscatcherapi.com/news-api) from your Python application.
 
 Documentation is identical with the API documentation. The same parameters and filters are available. 
-And the same response structure. You can have a look at [docs.newscatcherapi.com](https://docs.newscatcherapi.com/).
+And the same response structure. You can have a look at [docs.newscatcherapi.com](https://docs.newscatcherapi.com).
 
 ## Authentication
 
 The Authentication is done via the `x_api_key` variable.
 
-Receive your API key by registering at [app.newscatcherapi.com](https://app.newscatcherapi.com/).
+Receive your API key by registering at [app.newscatcherapi.com](https://app.newscatcherapi.com).
 
 ## Installation
 ```pip install newscatcherapi```
