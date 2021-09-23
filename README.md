@@ -32,7 +32,7 @@ Main method that allows you to find news article by keyword, date, language, cou
 ```
 all_articles = newscatcherapi.get_search(q='Elon Musk',
                                          lang='en',
-                                         country='CA',
+                                         countries='CA',
                                          page_size=100)
 ```
 
