@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import requests
 import os
 import sys
+import time
 
 sys.path.append(os.getcwd())
 
@@ -42,6 +43,8 @@ class NewsCatcherApiClient(object):
             topic=None,
             sources=None,
             not_sources=None,
+            when=None,
+            ranked_only=None,
             page_size=None,
             page=None
     ):
@@ -64,7 +67,7 @@ class NewsCatcherApiClient(object):
         :param not_countries: The inverse of the `countries` parameter.
         :type not_countries: list or str or None
 
-        :param topic: Accepted values: `news`, `sport`, `tech`, `world`, `finance`, `politics`, `business`, `economics`, `entertainment`, `beauty`, `travel`, `music`, `food`, `science`, `gaming` The topic to which you want to restrict the articles of your choice. Not all news articles are assigned with a topic, therefore, we cannot guarantee that 100% of topics talking about technology will be assigned a tech label.
+        :param topic: Accepted values: `news`, `sport`, `tech`, `world`, `finance`, `politics`, `business`, `economics`, `entertainment`, `beauty`, `travel`, `music`, `food`, `science`, `gaming`, `energy`. The topic to which you want to restrict the articles of your choice. Not all news articles are assigned with a topic, therefore, we cannot guarantee that 100% of topics talking about technology will be assigned a tech label.
         :type topic: str or None
 
         :param sources: One or more news resources to filter your search. It should be the normal form of the URL, For example: `nytimes.com,theguardian.com`
@@ -72,6 +75,12 @@ class NewsCatcherApiClient(object):
 
         :param not_sources: One or more sources to be excluded from the search. Comma-separated list. For example: `nytimes.com,cnn.com,wsj.com`
         :type not_sources: list or str or None
+
+        :param when: The time period you want to get the latest headlines for. Accepted forms: 7d => Dailly Form (last 7 days time period),  30d  (last 30 days time period) | 1h => Hourly Form (last hour), 24h (last 24 hours)
+        :type topic: str or None
+
+        :param ranked_only: Default: `True` Limit the search only for the sources which are in the top 1 million online websites. Unranked sources are assigned a rank that equals `999999`
+        :type ranked_only: bool or None
 
         :param page_size: `[1:100]` How many articles to return per page.
         :type page_size: int or None
@@ -111,6 +120,17 @@ class NewsCatcherApiClient(object):
 
         if not_sources is not None:
             payload["not_sources"] = utils.validate_sources(not_sources, 'not_sources')
+
+        # When
+        if when is not None:
+            payload["when"] = utils.validate_when(when, 'when')
+
+        # Ranks
+        if ranked_only is not None:
+            if utils.is_valid_boolean(ranked_only):
+                payload['ranked_only'] = ranked_only
+            else:
+                raise TypeError("ranked_only parameter should be of type boolean")
 
         # Page and page sizes
         # Page Size
@@ -194,7 +214,7 @@ class NewsCatcherApiClient(object):
         :param not_countries: The inverse of the `countries` parameter.
         :type not_countries: list or str or None
 
-        :param topic: Accepted values: `news`, `sport`, `tech`, `world`, `finance`, `politics`, `business`, `economics`, `entertainment`, `beauty`, `travel`, `music`, `food`, `science`, `gaming` The topic to which you want to restrict the articles of your choice. Not all news articles are assigned with a topic, therefore, we cannot guarantee that 100% of topics talking about technology will be assigned a tech label.
+        :param topic: Accepted values: `news`, `sport`, `tech`, `world`, `finance`, `politics`, `business`, `economics`, `entertainment`, `beauty`, `travel`, `music`, `food`, `science`, `gaming`, `energy`. The topic to which you want to restrict the articles of your choice. Not all news articles are assigned with a topic, therefore, we cannot guarantee that 100% of topics talking about technology will be assigned a tech label.
         :type topic: str or None
 
         :param sources: One or more news resources to filter your search. It should be the normal form of the URL, For example: `nytimes.com,theguardian.com`
@@ -369,7 +389,7 @@ class NewsCatcherApiClient(object):
         :param countries: Countries where the news publisher is located. **Important**: This parameter is not responsible for the countries mentioned in the news article. One or multiple countries can be used in the search. The only acceptable format is [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) For example, `US,CA,MX` or just `US`
         :type countries: list or str or None
 
-        :param topic: Accepted values: `news`, `sport`, `tech`, `world`, `finance`, `politics`, `business`, `economics`, `entertainment`, `beauty`, `travel`, `music`, `food`, `science`, `gaming` The topic to which you want to restrict the articles of your choice. Not all news articles are assigned with a topic, therefore, we cannot guarantee that 100% of topics talking about technology will be assigned a tech label.
+        :param topic: Accepted values: `news`, `sport`, `tech`, `world`, `finance`, `politics`, `business`, `economics`, `entertainment`, `beauty`, `travel`, `music`, `food`, `science`, `gaming`, `energy`. The topic to which you want to restrict the articles of your choice. Not all news articles are assigned with a topic, therefore, we cannot guarantee that 100% of topics talking about technology will be assigned a tech label.
         :type topic: str or None
 
         :return: JSON response as nested Python dictionary.
@@ -400,3 +420,310 @@ class NewsCatcherApiClient(object):
             raise NewsCatcherApiException(r.json())
 
         return r.json()
+
+    def get_latest_headlines_all_pages(
+            self,
+            lang=None,
+            not_lang=None,
+            countries=None,
+            not_countries=None,
+            topic=None,
+            sources=None,
+            not_sources=None,
+            when=None,
+            ranked_only=None,
+            page_size=100,
+            page=1,
+            final_page=None,
+            seconds_pause=1.0
+    ):
+
+        """Call the `/latest_headlines` endpoint the number of time sufficient to get all latest articles for a given search.
+
+        Fetch live top and breaking headlines.
+
+        Get the latest headlines given any topic, country, or language. Articles are sorted by the earliest
+        date published first. All found articles will be extracted.
+
+        :param lang: Specifies the languages of the search. For example: `en`. The only accepted format is [ISO 639-1 — 2](https://en.wikipedia.org/wiki/ISO_639-1) letter code.
+        :type lang: list or str or None
+
+        :param not_lang: Inverse to the `lang` parameter
+        :type not_lang: list or str or None
+
+        :param countries: Countries where the news publisher is located. **Important**: This parameter is not responsible for the countries mentioned in the news article. One or multiple countries can be used in the search. The only acceptable format is [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) For example, `US,CA,MX` or just `US`
+        :type countries: list or str or None
+
+        :param not_countries: The inverse of the `countries` parameter.
+        :type not_countries: list or str or None
+
+        :param topic: Accepted values: `news`, `sport`, `tech`, `world`, `finance`, `politics`, `business`, `economics`, `entertainment`, `beauty`, `travel`, `music`, `food`, `science`, `gaming`, `energy`. The topic to which you want to restrict the articles of your choice. Not all news articles are assigned with a topic, therefore, we cannot guarantee that 100% of topics talking about technology will be assigned a tech label.
+        :type topic: str or None
+
+        :param sources: One or more news resources to filter your search. It should be the normal form of the URL, For example: `nytimes.com,theguardian.com`
+        :type sources: list or str or None
+
+        :param not_sources: One or more sources to be excluded from the search. Comma-separated list. For example: `nytimes.com,cnn.com,wsj.com`
+        :type not_sources: list or str or None
+
+        :param when: The time period you want to get the latest headlines for. Accepted forms: 7d => Dailly Form (last 7 days time period),  30d  (last 30 days time period) | 1h => Hourly Form (last hour), 24h (last 24 hours)
+        :type topic: str or None
+
+        :param ranked_only: Default: `True` Limit the search only for the sources which are in the top 1 million online websites. Unranked sources are assigned a rank that equals `999999`
+        :type ranked_only: bool or None
+
+        :param page_size: `[1:100]` How many articles to return per page.
+        :type page_size: int
+
+        :param page: The number of the page. Use it to scroll through the results. This parameter is used to paginate: scroll through results because one API response cannot return more than 100 articles.
+        :type page: int
+
+        :param final_page: The last page number to extract. Use it to manage number of API calls and articles you are going to extract. For example, if you make a broad search with page_size=100 you will extract up to 10 000 articles and make 100 calls to do so.
+        :type final_page: int or None
+
+        :param seconds_pause: The number of seconds delay between each API call. For your subscription, you can have a rate limit on number of calls per second.
+        :type seconds_pause: float
+
+        :return: JSON response as Python list.
+        :rtype: list
+        """
+        nb_pages = None
+        if final_page is not None:
+            if type(final_page) == int:
+                if final_page >= page:
+                    nb_pages = final_page
+                else:
+                    raise ValueError("final_page param should be greater than page param")
+            else:
+                raise TypeError("final_page param should be an int")
+
+        all_articles = []
+        print(f'{str(page)} page is going to be extracted')
+        first_result = self.get_latest_headlines(
+            lang=lang,
+            not_lang=not_lang,
+            countries=countries,
+            not_countries=not_countries,
+            topic=topic,
+            sources=sources,
+            not_sources=not_sources,
+            when=when,
+            ranked_only=ranked_only,
+            page_size=page_size,
+            page=page
+        )
+
+        time.sleep(seconds_pause)
+
+        all_articles.extend(first_result['articles'])
+
+        print(f'Total number of found articles => {first_result["total_hits"]}.\n'
+              f'Total number of pages {first_result["total_pages"]}.')
+
+        current_page = page
+
+        if not nb_pages:
+            nb_pages = first_result["total_pages"]
+
+        while current_page < nb_pages:
+
+            current_page += 1
+
+            print(f'{str(current_page)}/{str(nb_pages)} page is going to be extracted')
+
+            try:
+                one_call_results = self.get_latest_headlines(
+                    lang=lang,
+                    not_lang=not_lang,
+                    countries=countries,
+                    not_countries=not_countries,
+                    topic=topic,
+                    sources=sources,
+                    not_sources=not_sources,
+                    when=when,
+                    ranked_only=ranked_only,
+                    page_size=page_size,
+                    page=current_page
+                )
+                all_articles.extend(one_call_results['articles'])
+            except NewsCatcherApiException as e:
+                print(f'{current_page} has not been extracted due to an error')
+                print(str(e))
+                pass
+
+            time.sleep(seconds_pause)
+
+        return all_articles
+
+    def get_search_all_pages(
+        self,
+        q=None,
+        lang=None,
+        not_lang=None,
+        from_=None,
+        to_=None,
+        published_date_precision=None,
+        search_in=None,
+        countries=None,
+        not_countries=None,
+        topic=None,
+        sources=None,
+        not_sources=None,
+        ranked_only=None,
+        from_rank=None,
+        to_rank=None,
+        sort_by=None,
+        page_size=100,
+        page=1,
+        final_page=None,
+        seconds_pause=1.0
+    ):
+        """Call the `/search` endpoint the number of time sufficient to get all latest articles for a given search.
+
+        Main endpoint that allows you to find news article by keyword, date, language, country, etc.
+
+        :param q: Keyword/keywords you're searching for. This is the most important part of your query. Please, refer to the **Advanced Query Parameter** section below for more examples and explanations.  (required)
+        :type q: str or None
+
+        :param lang: Specifies the languages of the search. For example: `en`. The only accepted format is [ISO 639-1 — 2](https://en.wikipedia.org/wiki/ISO_639-1) letter code.
+        :type lang: list or str or None
+
+        :param not_lang: Inverse to the `lang` parameter
+        :type not_lang: list or str or None
+
+        :param from_: `YYYY/mm/dd` From which point in time to start the search. The default timezone is UTC. Defaults to the past week.
+        :type from_: str or None
+
+        :param to_: `YYYY/mm/dd` Until which point in time to search for. The default timezone is UTC.
+        :type to_: str or None
+
+        :param published_date_precision: There are 3 types of date precision we define: `full` — day and time of an article is correctly identified with the appropriate timezone `timezone unknown` — day and time of an article is correctly identified without timezone `date` — only the day is identified without an exact time
+        :type published_date_precision: str or None
+
+        :param search_in: By default, we search what you specified in the `q` parameter in both `title` and `summary` of the article. However, you can limit this to either `title` or `summary`
+        :type search_in: str or None
+
+        :param countries: Countries where the news publisher is located. **Important**: This parameter is not responsible for the countries mentioned in the news article. One or multiple countries can be used in the search. The only acceptable format is [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) For example, `US,CA,MX` or just `US`
+        :type countries: list or str or None
+
+        :param not_countries: The inverse of the `countries` parameter.
+        :type not_countries: list or str or None
+
+        :param topic: Accepted values: `news`, `sport`, `tech`, `world`, `finance`, `politics`, `business`, `economics`, `entertainment`, `beauty`, `travel`, `music`, `food`, `science`, `gaming`, `energy`. The topic to which you want to restrict the articles of your choice. Not all news articles are assigned with a topic, therefore, we cannot guarantee that 100% of topics talking about technology will be assigned a tech label.
+        :type topic: str or None
+
+        :param sources: One or more news resources to filter your search. It should be the normal form of the URL, For example: `nytimes.com,theguardian.com`
+        :type sources: list or str or None
+
+        :param not_sources: One or more sources to be excluded from the search. Comma-separated list. For example: `nytimes.com,cnn.com,wsj.com`
+        :type not_sources: list or str or None
+
+        :param ranked_only: Default: `True` Limit the search only for the sources which are in the top 1 million online websites. Unranked sources are assigned a rank that equals `999999`
+        :type ranked_only: bool or None
+
+        :param from_rank: `[0:999999]` The lowest boundary of the rank of a news website to filter by. Important: lower rank means that a source is more popular
+        :type from_rank: int or None
+
+        :param to_rank: `[0:999999]` The upper boundary of the rank of a news website to filter by.
+        :type to_rank: int or None
+
+        :param sort_by: `relevancy` (default value) — the most relevant results first `date` — the most recently published results first `rank` — the results from the highest-ranked sources first
+        :type sort_by: str or None
+
+        :param page_size: `[1:100]` How many articles to return per page.
+        :type page_size: int or None
+
+        :param page: The number of the page. Use it to scroll through the results. This parameter is used to paginate: scroll through results because one API response cannot return more than 100 articles.
+        :type page: int or None
+
+        :param final_page: The last page number to extract. Use it to manage number of API calls and articles you are going to extract. For example, if you make a broad search with page_size=100 you will extract up to 10 000 articles and make 100 calls to do so.
+        :type final_page: int or None
+
+        :param seconds_pause: The number of seconds delay between each API call. For your subscription, you can have a rate limit on number of calls per second.
+        :type seconds_pause: float
+
+        :return: JSON response as Python list.
+        :rtype: list
+        """
+
+        nb_pages = None
+        if final_page is not None:
+            if type(final_page) == int:
+                if final_page >= page:
+                    nb_pages = final_page
+                else:
+                    raise ValueError("final_page param should be greater than page param")
+            else:
+                raise TypeError("final_page param should be an int")
+
+        all_articles = []
+        print(f'{str(page)} page is going to be extracted')
+        first_result = self.get_search(
+            q=q,
+            lang=lang,
+            not_lang=not_lang,
+            from_=from_,
+            to_=to_,
+            published_date_precision=published_date_precision,
+            search_in=search_in,
+            countries=countries,
+            not_countries=not_countries,
+            topic=topic,
+            sources=sources,
+            not_sources=not_sources,
+            ranked_only=ranked_only,
+            from_rank=from_rank,
+            to_rank=to_rank,
+            sort_by=sort_by,
+            page_size=page_size,
+            page=page
+        )
+
+        time.sleep(seconds_pause)
+
+        all_articles.extend(first_result['articles'])
+
+        print(f'Total number of found articles => {first_result["total_hits"]}.\n'
+              f'Total number of pages {first_result["total_pages"]}.')
+
+        current_page = page
+
+        if not nb_pages:
+            nb_pages = first_result["total_pages"]
+
+        while current_page < nb_pages:
+
+            current_page += 1
+
+            print(f'{str(current_page)}/{str(nb_pages)} page is going to be extracted')
+
+            try:
+                one_call_results = self.get_search(
+                    q=q,
+                    lang=lang,
+                    not_lang=not_lang,
+                    from_=from_,
+                    to_=to_,
+                    published_date_precision=published_date_precision,
+                    search_in=search_in,
+                    countries=countries,
+                    not_countries=not_countries,
+                    topic=topic,
+                    sources=sources,
+                    not_sources=not_sources,
+                    ranked_only=ranked_only,
+                    from_rank=from_rank,
+                    to_rank=to_rank,
+                    sort_by=sort_by,
+                    page_size=page_size,
+                    page=current_page
+                )
+                all_articles.extend(one_call_results['articles'])
+            except NewsCatcherApiException as e:
+                print(f'{current_page} has not been extracted due to an error')
+                print(str(e))
+                pass
+
+            time.sleep(seconds_pause)
+
+        return all_articles

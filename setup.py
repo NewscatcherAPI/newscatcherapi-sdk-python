@@ -12,17 +12,17 @@
 
 from setuptools import setup, find_packages
 
-VERSION = "0.1.0"
+VERSION = "0.3.0"
 INSTALL_REQUIRES = ["requests<3.0.0"]
 TESTS_REQUIRE = ["pytest"]
 
 if __name__ == "__main__":
     setup(
-        name="newscatcherapi-python",
+        name="newscatcherapi",
         version=VERSION,
         author="Maksym Sugonyaka",
         author_email="maksym@newscatcherapi.com",
-        url="https://github.com/NewscatcherAPI/NewsCatcher-Public",
+        url="https://github.com/NewscatcherAPI/newscatcherapi-sdk-python",
         packages=find_packages(),
         install_requires=INSTALL_REQUIRES,
         tests_require=TESTS_REQUIRE,

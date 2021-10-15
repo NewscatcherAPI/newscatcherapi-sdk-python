@@ -50,6 +50,15 @@ def validate_sources(list_sources, name_parameter):
     else:
         raise TypeError(f"{name_parameter} parameter should be of type str or list")
 
+def validate_when(when, name_parameter):
+    if is_valid_string(when):
+        if when[len(when)-1] in ['d', 'h']:
+            return when
+        else:
+            raise TypeError(f"{name_parameter} parameter should be the next form: 30d or 24h ")
+    else:
+        raise TypeError(f"{name_parameter} parameter should be of type str")
+
 
 PY2 = sys.version_info[0] == 2
 PY3 = sys.version_info[0] == 3
