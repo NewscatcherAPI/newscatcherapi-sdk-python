@@ -12,7 +12,7 @@
 
 from setuptools import setup, find_packages
 
-VERSION = "0.3.0"
+VERSION = "0.3.1"
 INSTALL_REQUIRES = ["requests<3.0.0"]
 TESTS_REQUIRE = ["pytest"]
 
