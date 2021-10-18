@@ -36,7 +36,7 @@ all_articles = newscatcherapi.get_search(q='Elon Musk',
                                          page_size=100)
 ```
 
-### Get New Extracting All Pages (/v2/search)
+### Get News Extracting All Pages (/v2/search)
 It is the same method as *get_search*, but you can program to extract all articles without changing `page` param manually. 
 
 For example: for a given search you have 1000 found articles.  *get_search* makes one API call and returns up to 100 articles. 
