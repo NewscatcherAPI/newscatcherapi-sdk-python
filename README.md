@@ -36,6 +36,26 @@ all_articles = newscatcherapi.get_search(q='Elon Musk',
                                          page_size=100)
 ```
 
+### Get New Extracting All Pages (/v2/search)
+It is the same method as *get_search*, but you can program to extract all articles without changing `page` param manually. 
+
+For example: for a given search you have 1000 found articles.  *get_search* makes one API call and returns up to 100 articles. 
+*get_search_all_pages* will make 10 API calls and will return all 1000 articles. 
+
+Two new parameters:
+- `max_page` - The last page number to extract. To use when you want to limit the number of extracted pages.
+- `seconds_pause` - Number of seconds waiting before each call. This parameter helps you deal with the rate limit on your subscription plan. By default, it is set to 1 second. 
+
+```
+all_articles = newscatcherapi.get_search_all_pages(q='Elon Musk',
+                                         lang='en',
+                                         countries='CA',
+                                         page_size=100,
+                                         max_page=10,
+                                         seconds_pause=1.0
+                                         )
+ ```
+
 ### Get Latest Headlines (/v2/latest_headlines)
 Get the latest headlines given any topic, country, sources, or language.
 
@@ -43,6 +63,25 @@ Get the latest headlines given any topic, country, sources, or language.
 top_headlines = newscatcherapi.get_latest_headlines(lang='en',
                                                     countries='us',
                                                     topic='business')
+ ```
+
+### Get Latest Headlines Extracting All Pages (/v2/latest_headlines)
+It is the same function as *get_latest_headlines*, but you can program to extract all articles without changing `page` param manually. 
+
+For example: for a given search you have 1000 found articles.  *get_latest_headlines* makes one API call and returns up to 100 articles. 
+*get_latest_headlines_all_pages* will make 10 API calls and will return all 1000 articles. 
+
+Two new parameters:
+- `max_page` - The last page number to extract. To use when you want to limit the number of extracted pages.
+- `seconds_pause` - Number of seconds waiting before each call. This parameter helps you deal with the rate limit on your subscription plan. By default, it is set to 1 second. 
+
+```
+top_headlines = newscatcherapi.get_latest_headlines_all_pages(lang='en',
+                                                    countries='us', 
+                                                    topic='business',
+                                                    max_page=10,
+                                                    seconds_pause=1.0
+                                                    )
  ```
 
 ### Get Sources (/v2/sources)

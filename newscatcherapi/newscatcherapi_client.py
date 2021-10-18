@@ -434,7 +434,7 @@ class NewsCatcherApiClient(object):
             ranked_only=None,
             page_size=100,
             page=1,
-            final_page=None,
+            max_page=None,
             seconds_pause=1.0
     ):
 
@@ -478,24 +478,25 @@ class NewsCatcherApiClient(object):
         :param page: The number of the page. Use it to scroll through the results. This parameter is used to paginate: scroll through results because one API response cannot return more than 100 articles.
         :type page: int
 
-        :param final_page: The last page number to extract. Use it to manage number of API calls and articles you are going to extract. For example, if you make a broad search with page_size=100 you will extract up to 10 000 articles and make 100 calls to do so.
-        :type final_page: int or None
+        :param max_page: The last page number to extract. Use it to manage number of API calls and articles you are going to extract. For example, if you make a broad search with page_size=100 you will extract up to 10 000 articles and make 100 calls to do so.
+        :type max_page: int or None
 
         :param seconds_pause: The number of seconds delay between each API call. For your subscription, you can have a rate limit on number of calls per second.
         :type seconds_pause: float
 
-        :return: JSON response as Python list.
-        :rtype: list
+        :return: JSON response as nested Python dictionary.
+        :rtype: dict
+        :raises NewsCatcherApiException: If the ``"status"`` value of the response is ``"error"`` rather than ``"ok"``.
         """
         nb_pages = None
-        if final_page is not None:
-            if type(final_page) == int:
-                if final_page >= page:
-                    nb_pages = final_page
+        if max_page is not None:
+            if type(max_page) == int:
+                if max_page >= page:
+                    nb_pages = max_page
                 else:
-                    raise ValueError("final_page param should be greater than page param")
+                    raise ValueError("max_page param should be greater than page param")
             else:
-                raise TypeError("final_page param should be an int")
+                raise TypeError("max_page param should be an int")
 
         all_articles = []
         print(f'{str(page)} page is going to be extracted')
@@ -522,7 +523,7 @@ class NewsCatcherApiClient(object):
 
         current_page = page
 
-        if not nb_pages:
+        if not nb_pages or (max_page and max_page > first_result["total_pages"]):
             nb_pages = first_result["total_pages"]
 
         while current_page < nb_pages:
@@ -553,7 +554,11 @@ class NewsCatcherApiClient(object):
 
             time.sleep(seconds_pause)
 
-        return all_articles
+
+        final_results = first_result
+        final_results['articles'] = all_articles
+
+        return final_results
 
     def get_search_all_pages(
         self,
@@ -575,7 +580,7 @@ class NewsCatcherApiClient(object):
         sort_by=None,
         page_size=100,
         page=1,
-        final_page=None,
+        max_page=None,
         seconds_pause=1.0
     ):
         """Call the `/search` endpoint the number of time sufficient to get all latest articles for a given search.
@@ -636,25 +641,26 @@ class NewsCatcherApiClient(object):
         :param page: The number of the page. Use it to scroll through the results. This parameter is used to paginate: scroll through results because one API response cannot return more than 100 articles.
         :type page: int or None
 
-        :param final_page: The last page number to extract. Use it to manage number of API calls and articles you are going to extract. For example, if you make a broad search with page_size=100 you will extract up to 10 000 articles and make 100 calls to do so.
-        :type final_page: int or None
+        :param max_page: The last page number to extract. Use it to manage number of API calls and articles you are going to extract. For example, if you make a broad search with page_size=100 you will extract up to 10 000 articles and make 100 calls to do so.
+        :type max_page: int or None
 
         :param seconds_pause: The number of seconds delay between each API call. For your subscription, you can have a rate limit on number of calls per second.
         :type seconds_pause: float
 
-        :return: JSON response as Python list.
-        :rtype: list
+        :return: JSON response as nested Python dictionary.
+        :rtype: dict
+        :raises NewsCatcherApiException: If the ``"status"`` value of the response is ``"error"`` rather than ``"ok"``.
         """
 
         nb_pages = None
-        if final_page is not None:
-            if type(final_page) == int:
-                if final_page >= page:
-                    nb_pages = final_page
+        if max_page is not None:
+            if type(max_page) == int:
+                if max_page >= page:
+                    nb_pages = max_page
                 else:
-                    raise ValueError("final_page param should be greater than page param")
+                    raise ValueError("max_page param should be greater than page param")
             else:
-                raise TypeError("final_page param should be an int")
+                raise TypeError("max_page param should be an int")
 
         all_articles = []
         print(f'{str(page)} page is going to be extracted')
@@ -688,7 +694,7 @@ class NewsCatcherApiClient(object):
 
         current_page = page
 
-        if not nb_pages:
+        if not nb_pages or (max_page and max_page > first_result["total_pages"]):
             nb_pages = first_result["total_pages"]
 
         while current_page < nb_pages:
@@ -726,4 +732,7 @@ class NewsCatcherApiClient(object):
 
             time.sleep(seconds_pause)
 
-        return all_articles
+        final_results = first_result
+        final_results['articles'] = all_articles
+
+        return final_results

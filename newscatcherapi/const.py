@@ -8,7 +8,7 @@ SOURCES_URL = "https://api.newscatcherapi.com/v2/sources"
 allowed_languages = 'af,ar,bg,bn,ca,cs,cy,cn,da,de,el,en,es,et,fa,fi,fr,gu,he,hi,hr,hu,id,it,ja,kn,ko,lt,lv,mk,ml,mr,ne,nl,no,pa,pl,pt,ro,ru,sk,sl,so,sq,sv,sw,ta,te,th,tl,tr,tw,uk,ur,vi'.split(',')
 
 #: The topic you want to get articles for.
-allowed_topics = 'news,sport,tech,world,finance,politics,business,economics,entertainment,beauty,travel,music,food,science,gaming'.split(',')
+allowed_topics = 'news,sport,tech,world,finance,politics,business,economics,entertainment,beauty,travel,music,food,science,gaming,energy'.split(',')
 
 # Date precisions
 allowed_precisions = 'timezone unknown,full,date'.split(',')
