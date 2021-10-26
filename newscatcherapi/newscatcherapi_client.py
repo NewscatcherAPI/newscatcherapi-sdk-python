@@ -77,7 +77,7 @@ class NewsCatcherApiClient(object):
         :type not_sources: list or str or None
 
         :param when: The time period you want to get the latest headlines for. Accepted forms: 7d => Dailly Form (last 7 days time period),  30d  (last 30 days time period) | 1h => Hourly Form (last hour), 24h (last 24 hours)
-        :type topic: str or None
+        :type when: str or None
 
         :param ranked_only: Default: `True` Limit the search only for the sources which are in the top 1 million online websites. Unranked sources are assigned a rank that equals `999999`
         :type ranked_only: bool or None
