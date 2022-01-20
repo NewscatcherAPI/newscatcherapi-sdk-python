@@ -46,7 +46,8 @@ class NewsCatcherApiClient(object):
             when=None,
             ranked_only=None,
             page_size=None,
-            page=None
+            page=None,
+            proxies=None
     ):
         """Call the `/latest_headlines` endpoint.
 
@@ -87,6 +88,9 @@ class NewsCatcherApiClient(object):
 
         :param page: The number of the page. Use it to scroll through the results. This parameter is used to paginate: scroll through results because one API response cannot return more than 100 articles.
         :type page: int or None
+
+        :param proxies: Dict of proxies if needed
+        :type proxies: dict or None
 
         :return: JSON response as nested Python dictionary.
         :rtype: dict
@@ -154,7 +158,7 @@ class NewsCatcherApiClient(object):
                 raise TypeError("page param should be an int")
 
         # Send Request
-        r = self.request_method.get(const.LATEST_HEADLINES_URL, auth=self.auth, timeout=30, params=payload)
+        r = self.request_method.get(const.LATEST_HEADLINES_URL, auth=self.auth, timeout=30, params=payload, proxies=proxies)
 
         # Check Status of Request
         if r.status_code != requests.codes.ok:
@@ -181,7 +185,8 @@ class NewsCatcherApiClient(object):
         to_rank=None,
         sort_by=None,
         page_size=None,
-        page=None
+        page=None,
+        proxies=None
     ):
         """Call the `/search` endpoint.
 
@@ -240,6 +245,10 @@ class NewsCatcherApiClient(object):
 
         :param page: The number of the page. Use it to scroll through the results. This parameter is used to paginate: scroll through results because one API response cannot return more than 100 articles.
         :type page: int or None
+
+        :param proxies: Dict of proxies if needed
+        :type proxies: dict or None
+
 
         :return: JSON response as nested Python dictionary.
         :rtype: dict
@@ -367,7 +376,7 @@ class NewsCatcherApiClient(object):
                 raise TypeError("page param should be an int")
 
         # Send Request
-        r = self.request_method.get(const.SEARCH_URL, auth=self.auth, timeout=30, params=payload)
+        r = self.request_method.get(const.SEARCH_URL, auth=self.auth, timeout=30, params=payload, proxies=proxies)
 
         # Check Status of Request
         if r.status_code != requests.codes.ok:
@@ -378,7 +387,8 @@ class NewsCatcherApiClient(object):
     def get_sources(self,
                     lang=None,
                     countries=None,
-                    topic=None):
+                    topic=None,
+                    proxies=None):
         """Call the `/sources` endpoint.
 
         Returns a list of the top 100 supported news websites. Overall, we support over 60,000 websites. Using this endpoint, you may find the top 100 for your specific language, country, topic combination.
@@ -391,6 +401,9 @@ class NewsCatcherApiClient(object):
 
         :param topic: Accepted values: `news`, `sport`, `tech`, `world`, `finance`, `politics`, `business`, `economics`, `entertainment`, `beauty`, `travel`, `music`, `food`, `science`, `gaming`, `energy`. The topic to which you want to restrict the articles of your choice. Not all news articles are assigned with a topic, therefore, we cannot guarantee that 100% of topics talking about technology will be assigned a tech label.
         :type topic: str or None
+
+        :param proxies: Dict of proxies if needed
+        :type proxies: dict or None
 
         :return: JSON response as nested Python dictionary.
         :rtype: dict
@@ -413,7 +426,7 @@ class NewsCatcherApiClient(object):
             payload['topic'] = utils.validate_topic(topic)
 
         # Send Request
-        r = self.request_method.get(const.SOURCES_URL, auth=self.auth, timeout=30, params=payload)
+        r = self.request_method.get(const.SOURCES_URL, auth=self.auth, timeout=30, params=payload, proxies=proxies)
 
         # Check Status of Request
         if r.status_code != requests.codes.ok:
@@ -435,7 +448,8 @@ class NewsCatcherApiClient(object):
             page_size=100,
             page=1,
             max_page=None,
-            seconds_pause=1.0
+            seconds_pause=1.0,
+            proxies=None
     ):
 
         """Call the `/latest_headlines` endpoint the number of time sufficient to get all latest articles for a given search.
@@ -484,6 +498,9 @@ class NewsCatcherApiClient(object):
         :param seconds_pause: The number of seconds delay between each API call. For your subscription, you can have a rate limit on number of calls per second.
         :type seconds_pause: float
 
+        :param proxies: Dict of proxies if needed
+        :type proxies: dict or None
+
         :return: JSON response as nested Python dictionary.
         :rtype: dict
         :raises NewsCatcherApiException: If the ``"status"`` value of the response is ``"error"`` rather than ``"ok"``.
@@ -511,7 +528,8 @@ class NewsCatcherApiClient(object):
             when=when,
             ranked_only=ranked_only,
             page_size=page_size,
-            page=page
+            page=page,
+            proxies=proxies
         )
 
         time.sleep(seconds_pause)
@@ -544,7 +562,8 @@ class NewsCatcherApiClient(object):
                     when=when,
                     ranked_only=ranked_only,
                     page_size=page_size,
-                    page=current_page
+                    page=current_page,
+                    proxies=proxies
                 )
                 all_articles.extend(one_call_results['articles'])
             except NewsCatcherApiException as e:
@@ -581,7 +600,8 @@ class NewsCatcherApiClient(object):
         page_size=100,
         page=1,
         max_page=None,
-        seconds_pause=1.0
+        seconds_pause=1.0,
+        proxies=None
     ):
         """Call the `/search` endpoint the number of time sufficient to get all latest articles for a given search.
 
@@ -647,6 +667,9 @@ class NewsCatcherApiClient(object):
         :param seconds_pause: The number of seconds delay between each API call. For your subscription, you can have a rate limit on number of calls per second.
         :type seconds_pause: float
 
+        :param proxies: Dict of proxies if needed
+        :type proxies: dict or None
+
         :return: JSON response as nested Python dictionary.
         :rtype: dict
         :raises NewsCatcherApiException: If the ``"status"`` value of the response is ``"error"`` rather than ``"ok"``.
@@ -682,7 +705,8 @@ class NewsCatcherApiClient(object):
             to_rank=to_rank,
             sort_by=sort_by,
             page_size=page_size,
-            page=page
+            page=page,
+            proxies=proxies
         )
 
         time.sleep(seconds_pause)
@@ -722,7 +746,8 @@ class NewsCatcherApiClient(object):
                     to_rank=to_rank,
                     sort_by=sort_by,
                     page_size=page_size,
-                    page=current_page
+                    page=current_page,
+                    proxies=proxies
                 )
                 all_articles.extend(one_call_results['articles'])
             except NewsCatcherApiException as e:
