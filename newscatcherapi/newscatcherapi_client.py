@@ -27,8 +27,9 @@ class NewsCatcherApiClient(object):
     :type session: `requests.Session <https://2.python-requests.org/en/master/user/advanced/#session-objects>`_ or None
     """
 
-    def __init__(self, x_api_key, session=None):
+    def __init__(self, x_api_key, base_url='https://api.newscatcherapi.com', session=None):
         self.auth = NewsCatcherApiAuth(x_api_key=x_api_key)
+        self.base_url = base_url
         if session is None:
             self.request_method = requests
         else:
@@ -158,7 +159,7 @@ class NewsCatcherApiClient(object):
                 raise TypeError("page param should be an int")
 
         # Send Request
-        r = self.request_method.get(const.LATEST_HEADLINES_URL, auth=self.auth, timeout=30, params=payload, proxies=proxies)
+        r = self.request_method.get(self.base_url + const.LATEST_HEADLINES_URL, auth=self.auth, timeout=30, params=payload, proxies=proxies)
 
         # Check Status of Request
         if r.status_code != requests.codes.ok:
@@ -376,7 +377,7 @@ class NewsCatcherApiClient(object):
                 raise TypeError("page param should be an int")
 
         # Send Request
-        r = self.request_method.get(const.SEARCH_URL, auth=self.auth, timeout=30, params=payload, proxies=proxies)
+        r = self.request_method.get(self.base_url + const.SEARCH_URL, auth=self.auth, timeout=30, params=payload, proxies=proxies)
 
         # Check Status of Request
         if r.status_code != requests.codes.ok:
@@ -426,7 +427,7 @@ class NewsCatcherApiClient(object):
             payload['topic'] = utils.validate_topic(topic)
 
         # Send Request
-        r = self.request_method.get(const.SOURCES_URL, auth=self.auth, timeout=30, params=payload, proxies=proxies)
+        r = self.request_method.get(self.base_url + const.SOURCES_URL, auth=self.auth, timeout=30, params=payload, proxies=proxies)
 
         # Check Status of Request
         if r.status_code != requests.codes.ok:
