@@ -535,6 +535,9 @@ class NewsCatcherApiClient(object):
 
         time.sleep(seconds_pause)
 
+        if 'articles' not in first_result.keys():
+            return first_result
+
         all_articles.extend(first_result['articles'])
 
         print(f'Total number of found articles => {first_result["total_hits"]}.\n'
@@ -711,6 +714,9 @@ class NewsCatcherApiClient(object):
         )
 
         time.sleep(seconds_pause)
+
+        if 'articles' not in first_result.keys():
+            return first_result
 
         all_articles.extend(first_result['articles'])
 
