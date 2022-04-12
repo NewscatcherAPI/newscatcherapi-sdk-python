@@ -56,6 +56,26 @@ all_articles = newscatcherapi.get_search_all_pages(q='Elon Musk',
                                          )
  ```
 
+
+### Get News Extracting All Articles (/v2/search)
+It is the same method as *get_search*, but you can fetch all articles without changing `page`, `from_`, and `to_` params manually. 
+​
+For example: for a given search you have found more than 10000 articles.  *get_search* makes one API call and returns up to 100 articles. 
+*get_search_all_pages* will make 100 API calls and will return 10000 articles. The *get_search_all_articles* method will return all articles. 
+​
+
+One new parameters:
+- `by` - How to divide the the time interval between to_ and from_ in order to extract all articles for the given search query. By default it is set to `week`. Accepted values: `month`, `week`, `day`.
+​
+```
+all_articles = newscatcherapi.get_search_all_articles(q='Elon Musk',
+                                         lang='en',
+                                         countries='CA',
+                                         page_size=100,
+                                         by = 'day'
+                                         )
+ ```
+
 ### Get Latest Headlines (/v2/latest_headlines)
 Get the latest headlines given any topic, country, sources, or language.
 
