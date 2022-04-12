@@ -90,3 +90,19 @@ else:
 
     def is_valid_string(var):
         raise SystemError("unsupported version of python detected (supported versions: 2, 3)")
+
+
+# function for updating the response dict/object
+def update_final_res(results, payload):
+    if 'articles' not in results.keys():
+      return True
+
+    if 'articles' not in payload.keys():
+      payload['articles'] = results['articles']
+    else:
+      payload['articles'].extend(results['articles'])
+
+    payload['total_hits'] += results['total_hits']
+    payload['total_pages'] += results['total_pages']
+    payload['page'] += results['page']
+    return False

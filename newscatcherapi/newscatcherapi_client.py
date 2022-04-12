@@ -4,6 +4,8 @@ import requests
 import os
 import sys
 import time
+from datetime import date, datetime, timedelta
+from dateparser import parse as parse_date
 
 sys.path.append(os.getcwd())
 
@@ -768,3 +770,212 @@ class NewsCatcherApiClient(object):
         final_results['articles'] = all_articles
 
         return final_results
+
+    def get_search_all_articles(
+            self,
+            q=None,
+            lang=None,
+            not_lang=None,
+            from_=None,
+            to_=None,
+            published_date_precision=None,
+            search_in=None,
+            countries=None,
+            not_countries=None,
+            topic=None,
+            by='week',
+            sources=None,
+            not_sources=None,
+            ranked_only=None,
+            from_rank=None,
+            to_rank=None,
+            sort_by=None,
+            page_size=100,
+            page=1,
+            max_page=None,
+            seconds_pause=1.0,
+            proxies=None):
+
+        """Call the `/search` endpoint the number of time sufficient to get all latest articles for a given search.
+
+        Main endpoint that allows you to find news article by keyword, date, language, country, etc.
+
+        :param q: Keyword/keywords you're searching for. This is the most important part of your query. Please, refer to the **Advanced Query Parameter** section below for more examples and explanations.  (required)
+        :type q: str or None
+
+        :param lang: Specifies the languages of the search. For example: `en`. The only accepted format is [ISO 639-1 — 2](https://en.wikipedia.org/wiki/ISO_639-1) letter code.
+        :type lang: list or str or None
+
+        :param not_lang: Inverse to the `lang` parameter
+        :type not_lang: list or str or None
+
+        :param from_: `YYYY/mm/dd` From which point in time to start the search. The default timezone is UTC. Defaults to the past week.
+        :type from_: str or None
+
+        :param to_: `YYYY/mm/dd` Until which point in time to search for. The default timezone is UTC.
+        :type to_: str or None
+
+        :param published_date_precision: There are 3 types of date precision we define: `full` — day and time of an article is correctly identified with the appropriate timezone `timezone unknown` — day and time of an article is correctly identified without timezone `date` — only the day is identified without an exact time
+        :type published_date_precision: str or None
+
+        :param search_in: By default, we search what you specified in the `q` parameter in both `title` and `summary` of the article. However, you can limit this to either `title` or `summary`
+        :type search_in: str or None
+
+        :param countries: Countries where the news publisher is located. **Important**: This parameter is not responsible for the countries mentioned in the news article. One or multiple countries can be used in the search. The only acceptable format is [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) For example, `US,CA,MX` or just `US`
+        :type countries: list or str or None
+
+        :param not_countries: The inverse of the `countries` parameter.
+        :type not_countries: list or str or None
+
+        :param topic: Accepted values: `news`, `sport`, `tech`, `world`, `finance`, `politics`, `business`, `economics`, `entertainment`, `beauty`, `travel`, `music`, `food`, `science`, `gaming`, `energy`. The topic to which you want to restrict the articles of your choice. Not all news articles are assigned with a topic, therefore, we cannot guarantee that 100% of topics talking about technology will be assigned a tech label.
+        :type topic: str or None
+
+        :param sources: One or more news resources to filter your search. It should be the normal form of the URL, For example: `nytimes.com,theguardian.com`
+        :type sources: list or str or None
+
+        :param not_sources: One or more sources to be excluded from the search. Comma-separated list. For example: `nytimes.com,cnn.com,wsj.com`
+        :type not_sources: list or str or None
+
+        :param ranked_only: Default: `True` Limit the search only for the sources which are in the top 1 million online
+        websites. Unranked sources are assigned a rank that equals `999999`
+        :type ranked_only: bool or None
+
+        :param from_rank: `[0:999999]` The lowest boundary of the rank of a news website to filter by. Important: lower rank means that a source is more popular
+        :type from_rank: int or None
+
+        :param to_rank: `[0:999999]` The upper boundary of the rank of a news website to filter by.
+        :type to_rank: int or None
+
+        :param sort_by: `relevancy` (default value) — the most relevant results first `date` — the most recently published results first `rank` — the results from the highest-ranked sources first
+        :type sort_by: str or None
+
+        :param page_size: `[1:100]` How many articles to return per page.
+        :type page_size: int or None
+
+        :param page: The number of the page. Use it to scroll through the results. This parameter is used to paginate: scroll through results because one API response cannot return more than 100 articles.
+        :type page: int or None
+
+        :param max_page: The last page number to extract. Use it to manage number of API calls and articles you are going to extract. For example, if you make a broad search with page_size=100 you will extract up to 10 000 articles and make 100 calls to do so.
+        :type max_page: int or None
+
+        :param seconds_pause: The number of seconds delay between each API call. For your subscription, you can have a rate limit on number of calls per second.
+        :type seconds_pause: float
+
+        :param proxies: Dict of proxies if needed
+        :type proxies: dict or None
+
+        :param by: Accepted values: `month`, `week`, `day`. Default: `week`. How to divide the the time time interval between to_ and from_.
+        :type by: str
+
+        :return: JSON response as nested Python dictionary.
+        :rtype: dict
+        :raises NewsCatcherApiException: If the ``"status"`` value of the response is ``"error"`` rather than ``"ok"``.
+        """
+        if not from_:
+            from_ = (datetime.utcnow() - timedelta(days=7)).strftime('%Y/%m/%d')
+        if not to_:
+            to_ = datetime.utcnow().strftime('%Y/%m/%d')
+
+        # create a timedelta corresponding to the by parameter
+        if by == 'month':
+            delta = timedelta(days=28)
+        elif by == 'week':
+            delta = timedelta(days=7)
+        elif by == 'day':
+            delta = timedelta(days=1)
+
+        # Convert the to_ and from_ parameters to datetime object
+        # Check if time is specified and treat accordingly
+        to_datetime = parse_date(to_, settings={'TIMEZONE': 'UTC'})
+
+        from_datetime = parse_date(from_, settings={'TIMEZONE': 'UTC'})
+
+        # the by parameter can't be smaller than `to_ - from_`
+        if to_datetime - from_datetime < delta:
+            raise ValueError("The 'by' parameter cannot be bigger than the difference of from_ and to_")
+
+        # initialize response dict/object
+        payload = {'status': '', 'total_hits': 0, 'page': 0, 'total_pages': 0, 'page_size': 0, 'articles': [], 'user_input': {}}
+
+        # flag so we can compensate for our midnight trickery in the from_ parameter
+        midnight_flag = False
+
+        while True:
+
+            if to_datetime - from_datetime <= delta:
+                print(f'{from_datetime} --> {to_datetime}')
+                results = self.get_search_all_pages(q=q,
+                                                    lang=lang,
+                                                    not_lang=not_lang,
+                                                    from_=from_datetime.strftime("%m/%d/%Y %H:%M:%S"),
+                                                    to_=to_datetime.strftime("%m/%d/%Y %H:%M:%S"),
+                                                    published_date_precision=published_date_precision,
+                                                    search_in=search_in,
+                                                    countries=countries,
+                                                    not_countries=not_countries,
+                                                    topic=topic,
+                                                    sources=sources,
+                                                    not_sources=not_sources,
+                                                    ranked_only=ranked_only,
+                                                    from_rank=from_rank,
+                                                    to_rank=to_rank,
+                                                    sort_by=sort_by,
+                                                    page_size=page_size,
+                                                    page=page,
+                                                    proxies=proxies,
+                                                    max_page=max_page,
+                                                    seconds_pause=seconds_pause)
+
+                utils.update_final_res(results, payload)
+                payload['page_size'] = page_size
+                payload['user_input'] = results['user_input']
+                payload['user_input']['by'] = by
+                if len(payload['articles']) > 0:
+                    payload['status'] = 'ok'
+                else:
+                    payload['status'] = 'No matches for your search.'
+
+                return payload
+
+            # move the to_ parameter forward
+            else:
+                temp_to_ = from_datetime + delta
+
+            # subtract 1 sec if the to_ parameter is the exact midnight
+            if temp_to_.hour == 0 and temp_to_.minute == 0 and \
+                    temp_to_.second == 0:
+                temp_to_ -= timedelta(seconds=1)
+                midnight_flag = True
+
+            print(f'{from_datetime} --> {temp_to_}')
+
+            results = self.get_search_all_pages(q=q,
+                                                lang=lang,
+                                                not_lang=not_lang,
+                                                from_=from_datetime.strftime("%m/%d/%Y %H:%M:%S"),
+                                                to_=temp_to_.strftime("%m/%d/%Y %H:%M:%S"),
+                                                published_date_precision=published_date_precision,
+                                                search_in=search_in,
+                                                countries=countries,
+                                                not_countries=not_countries,
+                                                topic=topic,
+                                                sources=sources,
+                                                not_sources=not_sources,
+                                                ranked_only=ranked_only,
+                                                from_rank=from_rank,
+                                                to_rank=to_rank,
+                                                sort_by=sort_by,
+                                                page_size=page_size,
+                                                page=page,
+                                                proxies=proxies,
+                                                max_page=max_page,
+                                                seconds_pause=seconds_pause)
+
+            utils.update_final_res(results, payload)
+
+            # move the from_ parameter forward
+            from_datetime = temp_to_
+
+            # Add a second so from_ doesn't become DD-1/MM/YYYY 23:59:59
+            if midnight_flag:
+                from_datetime += timedelta(seconds=1)

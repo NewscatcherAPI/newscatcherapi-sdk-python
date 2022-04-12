@@ -12,8 +12,8 @@
 
 from setuptools import setup, find_packages
 
-VERSION = "0.6.0"
-INSTALL_REQUIRES = ["requests<3.0.0"]
+VERSION = "0.7.0"
+INSTALL_REQUIRES = ["requests>=2.24.0", "dateparser>=0.7.6"]
 TESTS_REQUIRE = ["pytest"]
 
 if __name__ == "__main__":

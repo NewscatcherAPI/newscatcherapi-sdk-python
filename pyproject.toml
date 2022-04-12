@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "newscatcherapi"
-version = "0.6.0"
+version = "0.7.0"
 description = "NewsCatcher News API V2 SDK for Python"
 authors = ["Maksym Sugonyaka <maksym@newscatcherapi.com>",
            "Artem Bugara <artem@newscatcherapi.com>"]
@@ -12,11 +12,13 @@ keywords = ["News", "RSS", "Scraping", "Data Mining", "News Extraction"]
 
 [tool.poetry.dependencies]
 python = ">=3.6.0"
-requests = "2.24.0"
+requests = ">=2.24.0"
+dateparser= ">=0.7.6"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 requests="^2.24.0"
+dateparser="^1.1.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
