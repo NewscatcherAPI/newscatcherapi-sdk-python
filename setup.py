@@ -13,7 +13,7 @@
 from setuptools import setup, find_packages
 
 VERSION = "0.7.0"
-INSTALL_REQUIRES = ["requests>=2.24.0", "dateparser==1.1.1"]
+INSTALL_REQUIRES = ["requests>=2.24.0", "dateparser>=0.7.6"]
 TESTS_REQUIRE = ["pytest"]
 
 if __name__ == "__main__":
