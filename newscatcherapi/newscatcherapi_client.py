@@ -905,7 +905,7 @@ class NewsCatcherApiClient(object):
         while True:
 
             if to_datetime - from_datetime <= delta:
-                print(f'{from_datetime} --> {to_datetime}')
+                print(f'{from_datetime.strftime("%m/%d/%Y %H:%M:%S")} --> {to_datetime.strftime("%m/%d/%Y %H:%M:%S")}')
                 results = self.get_search_all_pages(q=q,
                                                     lang=lang,
                                                     not_lang=not_lang,
@@ -949,7 +949,7 @@ class NewsCatcherApiClient(object):
                 temp_to_ -= timedelta(seconds=1)
                 midnight_flag = True
 
-            print(f'{from_datetime} --> {temp_to_}')
+            print(f'{from_datetime.strftime("%m/%d/%Y %H:%M:%S")} --> {to_datetime.strftime("%m/%d/%Y %H:%M:%S")}')
 
             results = self.get_search_all_pages(q=q,
                                                 lang=lang,
