@@ -12,7 +12,7 @@
 
 from setuptools import setup, find_packages
 
-VERSION = "0.7.0"
+VERSION = "0.7.1"
 INSTALL_REQUIRES = ["requests>=2.24.0", "dateparser"]
 TESTS_REQUIRE = ["pytest"]
 
