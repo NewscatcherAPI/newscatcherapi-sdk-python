@@ -864,7 +864,7 @@ class NewsCatcherApiClient(object):
         :param proxies: Dict of proxies if needed
         :type proxies: dict or None
 
-        :param by: Accepted values: `month`, `week`, `day`. Default: `week`. How to divide the the time time interval between to_ and from_.
+        :param by: Accepted values: `month`, `week`, `day`, 'hour'. Default: `week`. How to divide the the time time interval between to_ and from_.
         :type by: str
 
         :return: JSON response as nested Python dictionary.
@@ -883,6 +883,8 @@ class NewsCatcherApiClient(object):
             delta = timedelta(days=7)
         elif by == 'day':
             delta = timedelta(days=1)
+        elif by == 'hour':
+            delta = timedelta(hours=1)
 
         # Convert the to_ and from_ parameters to datetime object
         # Check if time is specified and treat accordingly
