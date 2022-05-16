@@ -113,6 +113,23 @@ sources = newscatcherapi.get_sources(topic='business',
                                      countries='US')
  ```
 
+### Every endpoint supports _proxies_ parameter
+If you want to use proxies, you can add this parameter to all the endpoints we have.
+Here is an example of a valid form proxies parameter and an example of using it with one of the endpoints. 
+
+```
+proxies = {
+   'http': 'http://proxy.example.com:8080',
+   'https': 'http://secureproxy.example.com:8090',
+}
+
+all_articles = newscatcherapi.get_search(q='Elon Musk',
+                                         lang='en',
+                                         countries='CA',
+                                         page_size=100,
+                                         proxies=proxies)
+```
+
 
 ### Use *from_* and *to_* instead of *from* and *to* like in NewsCatcher News API
 In Python, we are not allowed to reserve variable names *from* and *to*. If you try to use them, you will get a syntax error:
