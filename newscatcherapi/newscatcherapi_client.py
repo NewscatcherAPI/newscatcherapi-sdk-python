@@ -864,7 +864,7 @@ class NewsCatcherApiClient(object):
         :param proxies: Dict of proxies if needed
         :type proxies: dict or None
 
-        :param by: Accepted values: `month`, `week`, `day`. Default: `week`. How to divide the the time time interval between to_ and from_.
+        :param by: Accepted values: `month`, `week`, `day`, 'hour'. Default: `week`. How to divide the the time time interval between to_ and from_.
         :type by: str
 
         :return: JSON response as nested Python dictionary.
@@ -883,6 +883,8 @@ class NewsCatcherApiClient(object):
             delta = timedelta(days=7)
         elif by == 'day':
             delta = timedelta(days=1)
+        elif by == 'hour':
+            delta = timedelta(hours=1)
 
         # Convert the to_ and from_ parameters to datetime object
         # Check if time is specified and treat accordingly
@@ -903,7 +905,7 @@ class NewsCatcherApiClient(object):
         while True:
 
             if to_datetime - from_datetime <= delta:
-                print(f'{from_datetime} --> {to_datetime}')
+                print(f'{from_datetime.strftime("%m/%d/%Y %H:%M:%S")} --> {to_datetime.strftime("%m/%d/%Y %H:%M:%S")}')
                 results = self.get_search_all_pages(q=q,
                                                     lang=lang,
                                                     not_lang=not_lang,
@@ -947,7 +949,7 @@ class NewsCatcherApiClient(object):
                 temp_to_ -= timedelta(seconds=1)
                 midnight_flag = True
 
-            print(f'{from_datetime} --> {temp_to_}')
+            print(f'{from_datetime.strftime("%m/%d/%Y %H:%M:%S")} --> {to_datetime.strftime("%m/%d/%Y %H:%M:%S")}')
 
             results = self.get_search_all_pages(q=q,
                                                 lang=lang,
