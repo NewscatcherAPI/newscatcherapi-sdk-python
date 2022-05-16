@@ -65,7 +65,7 @@ For example: for a given search you have found more than 10000 articles.  *get_s
 ​
 
 One new parameters:
-- `by` - How to divide the the time interval between to_ and from_ in order to extract all articles for the given search query. By default it is set to `week`. Accepted values: `month`, `week`, `day`.
+- `by` - How to divide the the time interval between to_ and from_ in order to extract all articles for the given search query. By default it is set to `week`. Accepted values: `month`, `week`, `day`, `hour`.
 ​
 ```
 all_articles = newscatcherapi.get_search_all_articles(q='Elon Musk',
