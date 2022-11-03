@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "newscatcherapi"
-version = "0.7.1"
+version = "0.7.2"
 description = "NewsCatcher News API V2 SDK for Python"
 authors = ["Maksym Sugonyaka <maksym@newscatcherapi.com>",
            "Artem Bugara <artem@newscatcherapi.com>"]

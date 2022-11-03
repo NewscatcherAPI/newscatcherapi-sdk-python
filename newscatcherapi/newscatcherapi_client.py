@@ -143,10 +143,7 @@ class NewsCatcherApiClient(object):
         # Page Size
         if page_size is not None:
             if type(page_size) == int:
-                if 0 <= page_size <= 100:
-                    payload["page_size"] = page_size
-                else:
-                    raise ValueError("page_size param should be an int between 1 and 100")
+                payload["page_size"] = page_size
             else:
                 raise TypeError("page_size param should be an int")
 
@@ -361,10 +358,7 @@ class NewsCatcherApiClient(object):
         # Page Size
         if page_size is not None:
             if type(page_size) == int:
-                if 0 <= page_size <= 100:
-                    payload["page_size"] = page_size
-                else:
-                    raise ValueError("page_size param should be an int between 1 and 100")
+                payload["page_size"] = page_size
             else:
                 raise TypeError("page_size param should be an int")
 
